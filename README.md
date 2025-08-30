@@ -109,9 +109,6 @@ cd censorGPT-Extension
 
 # Install Python dependencies
 pip install -r requirements.txt
-
-# Run the backend
-python3 app.py
 ```
 
 ### 2. Chrome Extension Setup
@@ -120,6 +117,21 @@ python3 app.py
 2. Enable **Developer mode**.
 3. Click **Load unpacked** and select the `extend/` folder.
 4. The extension will appear in your toolbar.
+
+### 3. Local Model Installation
+
+1. Download and install Ollama from https://www.ollama.com
+2. In Ollama, install the gemma3:4b model by selecting it and sending it a prompt.
+
+### 4. Run the extension!
+```bash
+# Go to the downloaded repository
+cd censorGPT-Extension
+
+# Run the program
+python3 app.py
+
+```
 
 ---
 
