@@ -147,7 +147,7 @@ A 3-minute demo video shows:
 - Popup alerting the user before sending.
 - User decision whether to proceed with the prompt.
 
-📺 [YouTube Demo Link – To be added]
+📺 [[YouTube Demo Link]](https://www.youtube.com/watch?v=L5OtmNhbnIk)
 
 ---
 
