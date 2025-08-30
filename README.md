@@ -122,6 +122,10 @@ pip install -r requirements.txt
 
 1. Download and install Ollama from https://www.ollama.com
 2. In Ollama, install the gemma3:4b model by selecting it and sending it a prompt.
+```bash
+# Download gemma3:4b model
+ollama pull gemma3:4b
+```
 
 ### 4. Run the extension!
 ```bash
