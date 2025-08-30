@@ -217,6 +217,8 @@ const blockAndSend = async (el) => {
 };
 
 
+
+
 // Capture-phase keydown to beat site handlers
 document.addEventListener("keydown", (e) => {
   const target = resolveEditableFromEvent(e) || e.target;
@@ -259,9 +261,31 @@ document.addEventListener("click", (e) => {
   }
 }, true);
 
+const getDeepActiveElement = () => {
+  let el = document.activeElement;
+  while (el && el.shadowRoot && el.shadowRoot.activeElement) {
+    el = el.shadowRoot.activeElement;
+  }
+  return el || document.activeElement;
+};
+
 document.addEventListener("input", (e) => {
-  console.log(e.target);
   if (e.target.id == "prompt-textarea") {
-    EnableButton = false
+    EnableButton = false;
+  }
+}); 
+
+document.addEventListener("paste", (e) => {
+  let target = getDeepActiveElement();
+  if (target.id == "prompt-textarea") {
+    EnableButton = false;
+  }
+}); 
+
+
+document.addEventListener("cut", (e) => {
+  let target = getDeepActiveElement();
+  if (target.id == "prompt-textarea") {
+    EnableButton = false;
   }
 }); 

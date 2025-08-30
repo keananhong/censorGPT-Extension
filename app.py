@@ -139,7 +139,7 @@ def ingest(payload: IngestPayload):
     print(f"LLM: {pii_items}")
 
     if pii_items:
-        if pii_items[0]["value"] == "NIL":
+        if {"type": "PII", "value": "NIL"} in pii_items:
             return {"ok": True, "received": msg, "pii": "null"}
         return {"ok": True, "received": msg, "pii": pii_items}
     else:
