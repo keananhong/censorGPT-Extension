@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Sensitive Input Guard",
+  "version": "0.1.3",
+  "description": "Detects sensitive text in inputs and prevents entry/submission.",
+  "permissions": ["storage"],
+  "host_permissions": ["http://127.0.0.1:8000/*", "https://*/*", "http://*/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "action": { "default_title": "Sensitive Input Guard", "default_popup": "popup.html" },
+  "options_page": "options.html"
+}
