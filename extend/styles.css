@@ -1,15 +1,142 @@
-.sig-tooltip {
-  position: absolute;
-  background: #ffefef;
-  border: 1px solid #e66363;
-  padding: 8px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  z-index: 2147483647;
-  box-shadow: 0 4px 10px rgba(0,0,0,.08);
-  margin-top: 6px;
+/* Banner that appears above the composer (light & dark aware) */
+
+.sig-banner {
+  display: none;               /* shown when there are items */
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f6c343;         /* amber base like your screenshot bar */
+  color: #1f1f1f;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.08);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 13px;
 }
-.sig-blocked {
-  outline: 2px solid #e66363 !important;
-  background-color: #fff7f7 !important;
+
+.sig-banner__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sig-banner__title {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sig-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.sig-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.22);
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  user-select: text;
+}
+
+.sig-close {
+  border: none;
+  background: rgba(0,0,0,.18);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+.sig-close:hover { background: rgba(0,0,0,.28); }
+
+@media (prefers-color-scheme: dark) {
+  .sig-banner {
+    background: #b88a1a; /* darker amber for dark mode */
+    color: #0f0f0f;
+    border-color: rgba(255,255,255,.08);
+  }
+  .sig-chip { background: rgba(255,255,255,.22); color: #111; }
+  .sig-close { background: rgba(255,255,255,.22); color: #111; }
+  .sig-close:hover { background: rgba(255,255,255,.32); }
+}
+
+/* Confirmation modal */
+.sig-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sig-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.sig-modal__dialog {
+  position: relative;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  z-index: 2;
+  font-family: system-ui, sans-serif;
+}
+
+.sig-modal__header {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.sig-modal__body {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.sig-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.sig-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+}
+
+.sig-btn--yes {
+  background: #2ecc71;
+  color: #fff;
+}
+.sig-btn--no {
+  background: #e74c3c;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sig-modal__dialog {
+    background: #222;
+    color: #eee;
+  }
 }
