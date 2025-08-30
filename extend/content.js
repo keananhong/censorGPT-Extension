@@ -1,3 +1,4 @@
+var buttonEn = true;
 
 // ---- Safe messaging helper to avoid "Extension context invalidated" errors ----
 function safeSendMessage(msg) {
@@ -70,6 +71,7 @@ const blockAndSend = async (el) => {
   // If background reached /ingest and got PII, show an alert immediately
   if (resp?.ok && resp.data?.pii && resp.data.pii === "null") {
     alert("No issues");
+    butonEn = true;
   } else if (resp?.ok && resp.data?.pii && Array.isArray(resp.data.pii) && resp.data.pii.length) {
     const piiList = resp.data.pii.map(it => `${it.type}: ${it.value}`).join("\n");
     alert(
@@ -78,37 +80,45 @@ const blockAndSend = async (el) => {
       piiList +
       "\n\nPlease review before proceeding."
     );
+    butonEn = true;
   } else if (!resp?.ok) {
     // Optional: surface errors if needed
     console.warn("SEND_PROMPT failed:", resp?.error);
+    butonEn = true;
   }
 };
 
 
 // Capture-phase keydown to beat site handlers
 document.addEventListener("keydown", (e) => {
-  const target = resolveEditableFromEvent(e) || e.target;
-  if (!isEditable(target)) return;
-  if (e.key !== "Enter") return;
-  if (e.shiftKey || e.ctrlKey || e.metaKey) return; // allow newline and bypass
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  e.stopPropagation();
-  e.cancelBubble = true;
-  e.returnValue = false;
-  blockAndSend(target);
+  if (buttonEn) {
+    const target = resolveEditableFromEvent(e) || e.target;
+    if (!isEditable(target)) return;
+    if (e.key !== "Enter") return;
+    if (e.shiftKey || e.ctrlKey || e.metaKey) return; // allow newline and bypass
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+    e.cancelBubble = true;
+    e.returnValue = false;
+    buttonEn = false;
+    blockAndSend(target);
+  }
 }, true);
 
 // Intercept send button clicks
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest && e.target.closest("#composer-submit-button");
-  if (!btn) return;
-  //if (!isEditable(target)) return;
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  e.stopPropagation();
-  const target = document.getElementById("prompt-textarea");
+  if (buttonEn) {
+    const btn = e.target.closest && e.target.closest("#composer-submit-button");
+    if (!btn) return;
+    //if (!isEditable(target)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    e.stopPropagation();
+    const target = document.getElementById("prompt-textarea");
 
-  if (!isEditable(target)) return;
-  blockAndSend(target);
+    if (!isEditable(target)) return;
+    buttonEn = false;
+    blockAndSend(target);
+  }
 }, true);
