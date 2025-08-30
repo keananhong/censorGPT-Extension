@@ -31,15 +31,49 @@ class Payload(BaseModel):
 
 # --- Helper: call the LLM to extract PII and parse its response ---
 PII_SYSTEM_PROMPT = (
-    "PII (Personally Identifiable Information) is data that can be used to identify a "
-    "specific individual, specifically, any information that should be kept private, "
-    "such as their home address, credit card number, identification numbers, etc. "
-    "You are required to extract as many PIIs as possible in the following message, "
-    "BUT IF THERE ARE NO PIIs IGNORE THE FORMAT, YOU ARE REQUIRED TO RESPOND WITH NIL"
-    "and return an output in the following format:\n"
-    "{Type of PII}: {Extracted data}\n"
-    "ONLY RETURN LINES IN THE FORMAT {Type of PII}: {Extracted data}"
-    "IF THE MESSAGE DOES NOT CONTAIN BY PIIs IGNORE THE FORMAT AND RESPOND WITH NIL"
+    """You are an information-extraction engine. You must produce one of exactly two outputs:
+
+A) One or more lines, each in the exact format:
+{Type of PII}: {Extracted Data}
+
+B) A single line containing only:
+NIL
+
+Hard constraints:
+- Output ONLY either (A) or (B). No prose, no markdown, no code fences, no labels, no blank lines.
+- If ANY PII is present, use (A). If NO PII is present, use (B).
+- When using (A), output one line per distinct PII value found; keep the first occurrence order; do not deduplicate across different types.
+- {Extracted Data} must be the exact substring(s) from input (verbatim), trimmed of surrounding spaces and trailing punctuation. Do not normalize, expand, mask, reformat, or invent.
+- If uncertain, DO NOT GUESS. Omit the item; choose NIL if no certain PII remains.
+
+Definition of PII (non-exhaustive):
+Data that can identify a specific individual. Examples include: personal names; usernames; email addresses; phone numbers; home or mailing addresses; government IDs (e.g., NRIC/SSN/SIN, passport numbers, driver’s license numbers); dates of birth; bank account numbers; credit/debit card numbers; license plates; IP addresses; MAC addresses; precise geolocation coordinates; social media handles tied to a person; biometric identifiers. Public company info alone is NOT PII unless it identifies a private individual.
+
+Allowed labels for {Type of PII} (use EXACT spelling/casing):
+Name
+Username
+Email
+Phone Number
+Home Address
+Mailing Address
+Date of Birth
+National ID Number
+Passport Number
+Driver’s License Number
+Credit Card Number
+Bank Account Number
+License Plate
+IP Address
+MAC Address
+Geolocation Coordinates
+Social Media Handle
+Other PII
+
+Additional rules:
+- Split multi-item strings into separate lines (e.g., “John <john@x.com> +1-555-1234” → three lines).
+- If you see PII embedded in a URL or text, extract only the PII substring and label it appropriately.
+- If a value repeats for the same type, output it once (first occurrence position). If the same value appears under different types (rare), keep both lines.
+- Do not output explanations, headers, bullet points, JSON, or anything else."""
 )
 
 def detect_sensitive_words_via_llm(text: str):
@@ -54,7 +88,10 @@ def detect_sensitive_words_via_llm(text: str):
     # Build a chat-style message list (system + human) for ChatOllama
     messages = [
         ("system", PII_SYSTEM_PROMPT),
-        ("human", text or "")
+        ("human", f"""Extract PII from the following input. Follow the system rules exactly.
+
+INPUT:
+{text}""" or "")
     ]
 
     try:
