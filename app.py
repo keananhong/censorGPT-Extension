@@ -38,8 +38,8 @@ PII_SYSTEM_PROMPT = (
     "BUT IF THERE ARE NO PIIs IGNORE THE FORMAT, YOU ARE REQUIRED TO RESPOND WITH NIL"
     "and return an output in the following format:\n"
     "{Type of PII}: {Extracted data}\n"
-    "IF THE MESSAGE DOES NOT CONTAIN BY PIIs IGNORE THE FORMAT AND RESPOND WITH NIL"
     "ONLY RETURN LINES IN THE FORMAT {Type of PII}: {Extracted data}"
+    "IF THE MESSAGE DOES NOT CONTAIN BY PIIs IGNORE THE FORMAT AND RESPOND WITH NIL"
 )
 
 def detect_sensitive_words_via_llm(text: str):
@@ -100,7 +100,10 @@ def ingest(payload: IngestPayload):
         pii_items = [{"type": "error", "value": str(e)}]
 
     print(f"LLM: {pii_items}")
+
     if pii_items:
+        if pii_items[0]["value"] == "NIL":
+            return {"ok": True, "received": msg, "pii": "null"}
         return {"ok": True, "received": msg, "pii": pii_items}
     else:
         return {"ok": True, "received": msg, "pii": "null"}
