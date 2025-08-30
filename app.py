@@ -35,8 +35,10 @@ PII_SYSTEM_PROMPT = (
     "specific individual, specifically, any information that should be kept private, "
     "such as their home address, credit card number, identification numbers, etc. "
     "You are required to extract as many PIIs as possible in the following message, "
+    "BUT IF THERE ARE NO PIIs IGNORE THE FORMAT, YOU ARE REQUIRED TO RESPOND WITH NIL"
     "and return an output in the following format:\n"
     "{Type of PII}: {Extracted data}\n"
+    "IF THE MESSAGE DOES NOT CONTAIN BY PIIs IGNORE THE FORMAT AND RESPOND WITH NIL"
     "ONLY RETURN LINES IN THE FORMAT {Type of PII}: {Extracted data}"
 )
 
@@ -64,8 +66,10 @@ def detect_sensitive_words_via_llm(text: str):
             raw = str(resp)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"LLM error: {e}")
-
+    
     # Parse lines like: "Type: value"
+    if raw == "NIL":
+        return None
     results = []
     for line in (raw or "").splitlines():
         line = line.strip()
@@ -81,19 +85,6 @@ def detect_sensitive_words_via_llm(text: str):
             results.append({"type": "PII", "value": line})
     return results
 
-@app.post("/check")
-def check(payload: Payload):
-    """
-    Replaces the previous regex-based detector with an LLM-driven extractor.
-
-    """
-    items = detect_sensitive_words_via_llm(payload.text or "")
-    # For backward compatibility with former "sensitive_words" key,
-    # we include both a structured and a flat representation.
-    flat = [f'{it["type"]}: {it["value"]}' for it in items]
-    print(flat)
-    return {"sensitive": items, "sensitive_words": flat}
-
 # -------- Existing /ingest stays the same --------
 class IngestPayload(BaseModel):
     text: str
@@ -101,22 +92,18 @@ class IngestPayload(BaseModel):
 @app.post("/ingest")
 def ingest(payload: IngestPayload):
     msg = (payload.text or "").strip()
-    print(f"[INGEST] {msg}")
-    try:    
-        with open("ingested_prompts.log", "a", encoding="utf-8") as fp:
-            fp.write(msg + "\n")
-    except Exception:
-        pass
+    print(f"Received: {msg}")
 
-    # Run PII detection here
     try:
         pii_items = detect_sensitive_words_via_llm(msg)
     except Exception as e:
         pii_items = [{"type": "error", "value": str(e)}]
 
-    print(pii_items)
-    return {"ok": True, "received": msg, "pii": pii_items}
-
+    print(f"LLM: {pii_items}")
+    if pii_items:
+        return {"ok": True, "received": msg, "pii": pii_items}
+    else:
+        return {"ok": True, "received": msg, "pii": "null"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
